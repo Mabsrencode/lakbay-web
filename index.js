@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import { connectDatabase } from "./config/database";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -8,11 +9,13 @@ const port = 3000;
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
-
+  try {
+    await connectDatabase();
+  } catch (error) {}
   io.on("connection", (socket) => {
     // ...
   });
